@@ -1,13 +1,26 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  ValidationPipe,
+} from '@nestjs/common';
+import { ProductDto } from 'src/dto/product.dto';
 import { ResponseData } from 'src/global/globalCLass';
-import { ProductService } from './products.service';
-import { Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { HttpMessage, HttpStatus } from 'src/global/globalEnum';
 import { Product } from 'src/models/product.model';
+import { ProductService } from './products.service';
+
+//cau hinh duong dan api
+//module -> controller -> service
 
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
-
+  //response
   @Get()
   getProducts(): ResponseData<Product[]> {
     try {
@@ -24,17 +37,19 @@ export class ProductController {
       );
     }
   }
-
+  //dto
   @Post()
-  createProduct(): ResponseData<string> {
+  createProduct(
+    @Body(new ValidationPipe()) productDto: ProductDto,
+  ): ResponseData<ProductDto> {
     try {
-      return new ResponseData<string>(
-        this.productService.createProduct(),
+      return new ResponseData<Product>(
+        this.productService.createProduct(productDto),
         HttpStatus.SUCCESS,
         HttpMessage.SUCCESS,
       );
     } catch (error) {
-      return new ResponseData<string>(
+      return new ResponseData<Product>(
         null,
         HttpStatus.ERROR,
         HttpMessage.ERROR,
@@ -58,16 +73,20 @@ export class ProductController {
       );
     }
   }
+
   @Put('/:id')
-  updateProduct(): ResponseData<string> {
+  updateProduct(
+    @Body() productDto: ProductDto,
+    @Param('id') id: number,
+  ): ResponseData<Product> {
     try {
-      return new ResponseData<string>(
-        this.productService.updateProduct(),
+      return new ResponseData<Product>(
+        this.productService.updateProduct(productDto, id),
         HttpStatus.SUCCESS,
         HttpMessage.SUCCESS,
       );
     } catch (error) {
-      return new ResponseData<string>(
+      return new ResponseData<Product>(
         null,
         HttpStatus.ERROR,
         HttpMessage.ERROR,
@@ -76,15 +95,15 @@ export class ProductController {
   }
 
   @Delete('/:id')
-  deleteProduct(): ResponseData<string> {
+  deleteProduct(@Param('id') id : number): ResponseData<boolean> {
     try {
-      return new ResponseData<string>(
-        this.productService.deleteProduct(),
+      return new ResponseData<boolean>(
+        this.productService.deleteProduct(id),
         HttpStatus.SUCCESS,
         HttpMessage.SUCCESS,
       );
     } catch (error) {
-      return new ResponseData<string>(
+      return new ResponseData<boolean>(
         null,
         HttpStatus.ERROR,
         HttpMessage.ERROR,

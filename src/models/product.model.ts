@@ -11,3 +11,5 @@ export class Product {
     if (price !== null) this.price = price;
   }
 }
+
+//type product
